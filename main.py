@@ -6,7 +6,7 @@ main.py — SmartDesk-AI Assistant entry point.
 import argparse
 import uuid
 
-from langchain_core.messages import HumanMessage, AIMessage
+from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 from langgraph.types import Command
 import sys
 from openai import OpenAI
@@ -79,7 +79,7 @@ class SmartdeskAIAssistant:
                 logger.info("Resuming with: %s", user_input)
 
             # Resume the graph with the user's answer
-            result = self.graph.invoke(Command(resume=user_input), self._config)
+            result = self.graph.invoke(Command(update={"interrupt_response": user_input, "messages": [SystemMessage(content=prompt), HumanMessage(content=user_input)]}),  self._config)
 
         answer = result.get("final_answer", "Sorry, I could not process your request.")
 

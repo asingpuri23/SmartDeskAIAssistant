@@ -34,7 +34,7 @@ def jira_agent_node(state: SmartdeskAIState) -> dict:
 
     checkForRagResponse = True
 
-    interrupt_response = state.get("user_query", None)
+    interrupt_response = state.get("interrupt_response", None)
     logger.info(f"Interrupt response: {interrupt_response}")
 
     if interrupt_response:
@@ -44,6 +44,8 @@ def jira_agent_node(state: SmartdeskAIState) -> dict:
         elif interrupt_response.lower() == "no":
             logger.info("User declined to create a JIRA ticket. Exiting JIRA agent.")
             return {"jira_messages": existing, "jira_response": "User declined to create a JIRA ticket."}
+    else:
+        checkForRagResponse = False
 
     if checkForRagResponse:
         rag_response = state.get("rag_messages", [])
@@ -79,7 +81,7 @@ def jira_agent_node(state: SmartdeskAIState) -> dict:
     has_tools = bool(getattr(response, "tool_calls", None))
     logger.info("Tool calls: %s", has_tools)
 
-    update: dict = {"jira_messages": all_msgs}
+    update: dict = {"jira_messages": all_msgs}  # Reset interrupt response after processing
 
     if not has_tools:
         update["jira_response"] = response.content
